@@ -19,6 +19,10 @@ cmdline
 
 lang en_US
 rootpw --iscrypted {pw}
+
+%packages
+@^Server with GUI
+%end
 """
     )
 
