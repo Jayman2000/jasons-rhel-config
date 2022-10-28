@@ -17,6 +17,10 @@ with open("ks.cfg", 'w') as file:
 # is required so that I can eliminate it.
 cmdline
 
+ignoredisk --only-use=disk/by-path/virtio-pci-0000:05:00.0
+clearpart --all
+autopart
+
 lang en_US
 rootpw --iscrypted {pw}
 
