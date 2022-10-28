@@ -1,7 +1,6 @@
 1. Make sure that the system you’re going to install Red Hat Enterprise
 Linux on meets [RHEL 9’s system requirements](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html-single/performing_a_standard_rhel_9_installation/index#system-requirements-reference_installing-RHEL).
-2. Make sure you have a copy of the `ks.cfg` file that’s in the root of
-this repository.
+2. Generate a `ks.cfg` file by running `generate_kickstart.py`.
 3. Make sure that you have a copy of the latest version of the RHEL 9
 installation DVD image.
 4. Verify the integrity of that image.
