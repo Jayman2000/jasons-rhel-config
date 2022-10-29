@@ -93,7 +93,7 @@ systemd
 ansible-core
 %end
 
-%post
+%post --log=/root/ks-post.log
 # For whatever reason, multi-user.target is the default, even if you
 # choose “Server with GUI”.
 systemctl set-default graphical.target
