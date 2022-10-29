@@ -1,0 +1,16 @@
+%YAML 1.2
+---
+-
+    name: Setup Git
+    hosts: localhost
+    remote_user: root
+
+    tasks:
+        -
+            name: Install Git
+            ansible.builtin.dnf:
+                name: git
+                # Software updates should be handled by GNOME Software.
+                # GNOME Software allows you to apply updates safely
+                # offline (see <https://lwn.net/Articles/702629/>).
+                state: present
