@@ -33,6 +33,8 @@ rootpw --iscrypted {pw}
 %post
 systemctl set-default graphical.target
 %end
+
+poweroff
 """
     )
 
