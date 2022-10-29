@@ -2,6 +2,8 @@ from crypt import crypt
 from getpass import getpass
 from sys import stderr
 
+org = getpass("Organization id: ")
+key = getpass("Activation key: ")
 pw = getpass("Root password: ")
 if len(pw) <= 5:
     print("WARNING: Short password.")
@@ -16,6 +18,8 @@ with open("ks.cfg", 'w') as file:
 # interaction is required because I want to know when user interaction
 # is required so that I can eliminate it.
 cmdline
+
+rhsm --organization={org} --activation-key="{key}"
 
 ignoredisk --only-use=disk/by-path/virtio-pci-0000:05:00.0
 clearpart --all
