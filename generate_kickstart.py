@@ -27,6 +27,12 @@ rootpw --iscrypted {pw}
 %packages
 @^Server with GUI
 %end
+
+# For whatever reason, multi-user.target is the default, even if you
+# choose “Server with GUI”.
+%post
+systemctl set-default graphical.target
+%end
 """
     )
 
