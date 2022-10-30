@@ -97,7 +97,7 @@ autopart
 
 lang en_US
 rootpw --iscrypted {rootpw}
-user --name=jayman --iscrypted --password="{jaymanpw}"
+user --name=jayman --iscrypted --password="{jaymanpw}" --groups=wheel
 
 %packages
 @^Server with GUI
