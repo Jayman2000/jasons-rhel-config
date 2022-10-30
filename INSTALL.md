@@ -5,3 +5,6 @@ Linux on meets [RHEL 9’s system requirements](https://access.redhat.com/docume
 installation DVD image.
 4. Verify the integrity of that image.
 5. Follow [these instructions](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/performing_an_advanced_rhel_9_installation/starting-kickstart-installations_installing-rhel-as-an-experienced-user#starting-a-kickstart-installation-automatically-using-a-local-volume_starting-kickstart-installations).
+6. Once the system shuts itself down, remove the install disk.
+7. If you’re no longer going to use the disk that has the `OEMDRV` partiton, then remove that disk.
+8. Turn the system on.
