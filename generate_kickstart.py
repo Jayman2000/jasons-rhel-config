@@ -57,14 +57,28 @@ def shell_commands_to_reproduce_file(path: Path) -> Iterable[str]:
         overwrite = False
 
 
+def encrypted_password(username : str) -> str:
+    password = getpass(f"Password for {username}: ")
+    if len(password) <= 5:
+        print("WARNING: Short password.")
+    # The official Red Hat docs recommend using Python’s crypt module
+    # to do this. See <https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/performing_an_advanced_rhel_9_installation/kickstart-commands-and-options-reference_installing-rhel-as-an-experienced-user#rootpw-required_kickstart-commands-for-system-configuration>.
+    password = crypt(password)
+    if '"' in password:
+        print(
+            "WARNING: Encrypted password contains a quotation mark. "
+            + "This will probably result in a kickstart file with "
+            + "invalid syntax or a user with an invalid password.",
+            file=stderr
+        )
+    return password
+
+
+
 org = getpass("Organization id: ")
 key = getpass("Activation key: ")
-pw = getpass("Root password: ")
-if len(pw) <= 5:
-    print("WARNING: Short password.")
-# The official Red Hat docs recommend using Python’s crypt module to do
-# this. See <https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/performing_an_advanced_rhel_9_installation/kickstart-commands-and-options-reference_installing-rhel-as-an-experienced-user#rootpw-required_kickstart-commands-for-system-configuration>.
-pw = crypt(pw)
+rootpw = encrypted_password("root")
+jaymanpw = encrypted_password("jayman")
 
 
 with open("ks.cfg", 'w') as file:
@@ -82,7 +96,8 @@ clearpart --all
 autopart
 
 lang en_US
-rootpw --iscrypted {pw}
+rootpw --iscrypted {rootpw}
+user --name=jayman --iscrypted --password="{jaymanpw}"
 
 %packages
 @^Server with GUI
