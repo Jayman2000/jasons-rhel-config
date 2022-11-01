@@ -1,0 +1,20 @@
+%YAML 1.2
+---
+-
+    name: Configure Git
+    hosts: localhost
+    remote_user: jayman
+
+    tasks:
+        -
+            name: Set email
+            community.general.git_config:
+                name: user.email
+                scope: &scope global
+                value: "jason@jasonyundt.email"
+        -
+            name: Set name
+            community.general.git_config:
+                name: user.name
+                scope: *scope
+                value: "Jason Yundt"

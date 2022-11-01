@@ -1,16 +1,16 @@
 from collections.abc import Iterable
 from crypt import crypt
 from getpass import getpass
-from pathlib import Path
+from itertools import chain
+from pathlib import Path, PurePosixPath
 from re import IGNORECASE, compile as compile_regex
 from shlex import quote as shell_quote
 from sys import stderr
-from typing import Final
+from typing import Final, Optional
 
 
 CHUNK_DELIMITER : Final = "%end"
 NEWLINE : Final = "\n"
-PLAYBOOK_FILENAME : Final = "ansible-playbook.yaml"
 
 
 def echo_chunk(chunk : str, overwrite : bool) -> str:
@@ -27,15 +27,25 @@ def echo_chunk(chunk : str, overwrite : bool) -> str:
     return " ".join(return_value)
 
 
-def shell_commands_to_reproduce_file(path: Path) -> Iterable[str]:
+def shell_commands_to_reproduce_file(path : Path) -> Iterable[str]:
     """
-    Note: This will produce a sequence of commands that assumes that the
-    dest shell variable has already been initialized.
+    path should be relative to this file.
     """
+    input_path = path
+    output_path = PurePosixPath(path)
+    if output_path.is_absolute():
+        raise ValueError("output_path should be relative not absolute.")
+
+    set_dest_dir_command = 'dest_dir="$(systemd-path user-shared)/jasons-rhel-config/"'
+    if len(path.parts) > 1:  # If the path contains more than just a filename.
+        set_dest_dir_command += shell_quote(str(output_path.parent)) + "/"
+    yield set_dest_dir_command
+    yield 'mkdir -p "$dest_dir"'
+    yield 'dest="$dest_dir"' + shell_quote(str(output_path.name))
     # The “newline=''” part helps us reproduce the exact contents of the
     # file located at path. If that file has CRLFs, the reproduction
     # will have CRLFs.
-    with path.open(newline='') as file:
+    with input_path.open(newline='') as file:
         contents = file.read()
     overwrite = True
     chunk_start = 0
@@ -113,17 +123,24 @@ ansible-core
 # choose “Server with GUI”.
 systemctl set-default graphical.target
 
-dest_dir="$(systemd-path user-shared)/jasons-rhel-config"
-mkdir -p "$dest_dir"
-dest="$dest_dir/"{shell_quote(PLAYBOOK_FILENAME)}
+""")
 
-{NEWLINE.join(shell_commands_to_reproduce_file(Path(PLAYBOOK_FILENAME)))}
+    paths = chain(
+        (Path("run-ansible.sh"),),
+        Path("ansible").glob("**/*.yaml")
+    )
+    for path in paths:
+        for command in shell_commands_to_reproduce_file(path):
+            print(command, file=file)
 
-ansible-playbook "$dest"
+    file.write("""
+
+cd "$(systemd-path user-shared)/jasons-rhel-config"
+chmod +x run-ansible.sh
+./run-ansible.sh
 %end
 
 poweroff
-"""
-    )
+""")
 
 print("Successfully generated a new ks.cfg.")
