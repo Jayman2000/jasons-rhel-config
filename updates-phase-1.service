@@ -1,0 +1,9 @@
+[Unit]
+Description=Phase 1 of system updates
+Wants=network-online.target
+After=network-online.target
+FailureAction=reboot
+SuccessAction=reboot
+
+[Service]
+ExecStart=/usr/local/bin/updates-phase-1.sh

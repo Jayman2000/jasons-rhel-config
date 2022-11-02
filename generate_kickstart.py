@@ -126,7 +126,12 @@ systemctl set-default graphical.target
 """)
 
     paths = chain(
-        (Path("run-ansible.sh"),),
+        (
+            Path("updates-phase-1.sh"),
+            Path("updates-phase-1.service"),
+            Path("updates-phase-1.target"),
+            Path("run-ansible.sh"),
+        ),
         Path("ansible").glob("**/*.yaml")
     )
     for path in paths:

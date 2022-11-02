@@ -1,0 +1,32 @@
+%YAML 1.2
+---
+-
+    name: Prepare for system upgrade
+    hosts: localhost
+    remote_user: root
+
+    tasks:
+        -
+            name: Install script for phase 1 of updates
+            ansible.builtin.copy:
+                src: ../updates-phase-1.sh
+                dest: /usr/local/bin/updates-phase-1.sh
+                owner: root
+                group: root
+                mode: u=rx,g=,o=
+        -
+            name: Install service for phase 1 of updates
+            ansible.builtin.copy:
+                src: ../updates-phase-1.service
+                dest: /etc/systemd/system/updates-phase-1.service
+                owner: root
+                group: root
+                mode: u=r,g=r,o=r
+        -
+            name: Install target for phase 1 of updates
+            ansible.builtin.copy:
+                src: ../updates-phase-1.target
+                dest: /etc/systemd/system/updates-phase-1.target
+                owner: root
+                group: root
+                mode: u=r,g=r,o=r
