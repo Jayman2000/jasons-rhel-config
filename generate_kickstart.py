@@ -85,10 +85,10 @@ def encrypted_password(username : str) -> str:
 
 
 
-org = getpass("Organization id: ")
-key = getpass("Activation key: ")
-rootpw = encrypted_password("root")
-jaymanpw = encrypted_password("jayman")
+organization_id = getpass("Organization id: ")
+activation_key = getpass("Activation key: ")
+root_password = encrypted_password("root")
+jayman_password = encrypted_password("jayman")
 
 
 with open("ks.cfg", 'w') as file:
@@ -99,15 +99,15 @@ with open("ks.cfg", 'w') as file:
 # is required so that I can eliminate it.
 cmdline
 
-rhsm --organization={org} --activation-key="{key}"
+rhsm --organization={organization_id} --activation-key="{activation_key}"
 
 ignoredisk --only-use=disk/by-path/virtio-pci-0000:05:00.0
 clearpart --all
 autopart
 
 lang en_US
-rootpw --iscrypted {rootpw}
-user --name=jayman --iscrypted --password="{jaymanpw}" --groups=wheel
+rootpw --iscrypted {root_password}
+user --name=jayman --iscrypted --password="{jayman_password}" --groups=wheel
 
 %packages
 @^Server with GUI
