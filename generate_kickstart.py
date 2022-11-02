@@ -70,7 +70,7 @@ def shell_commands_to_reproduce_file(path : Path) -> Iterable[str]:
 def encrypted_password(username : str) -> str:
     password = getpass(f"Password for {username}: ")
     if len(password) <= 5:
-        print("WARNING: Short password.")
+        print("WARNING: Short password.", file=stderr)
     # The official Red Hat docs recommend using Python’s crypt module
     # to do this. See <https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/performing_an_advanced_rhel_9_installation/kickstart-commands-and-options-reference_installing-rhel-as-an-experienced-user#rootpw-required_kickstart-commands-for-system-configuration>.
     password = crypt(password)
