@@ -9,3 +9,7 @@ installation DVD image. If you don’t have a copy, then follow
 6. Once the system shuts itself down, remove the install disk.
 7. If you’re no longer going to use the disk that has the `OEMDRV` partiton, then remove that disk.
 8. Turn the system on.
+9. Log in.
+10. Open a terminal.
+11. Generate an SSH key by running `ssh-keygen -t ed25519`
+12. Add the public key to `git@jasonyundt.website`’s `authorized_keys`
