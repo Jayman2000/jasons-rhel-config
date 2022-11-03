@@ -7,18 +7,6 @@
 
     tasks:
         -
-            name: Set email for Git
-            community.general.git_config:
-                name: user.email
-                scope: &scope global
-                value: "jason@jasonyundt.email"
-        -
-            name: Set name for Git
-            community.general.git_config:
-                name: user.name
-                scope: *scope
-                value: "Jason Yundt"
-        -
             name: Install <https://github.com/achillesrasquinha/pipupgrade>
             ansible.builtin.pip:
               name: pipupgrade
