@@ -15,14 +15,6 @@
                 mode: u=rx,g=,o=
                 state: directory
         -
-            name: Install script for phase 1 of updates
-            ansible.builtin.copy:
-                src: ../updates-phase-1.sh
-                dest: /usr/local/bin/updates-phase-1.sh
-                owner: root
-                group: root
-                mode: u=rx,g=,o=
-        -
             name: Install service for phase 1 of updates
             ansible.builtin.copy:
                 src: ../updates-phase-1.service

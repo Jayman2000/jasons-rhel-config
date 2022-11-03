@@ -36,7 +36,7 @@ declare -r share_directory=/usr/local/share/jasons-rhel-config
 mkdir --parents --mode='u=rx,g=,o=' "$share_directory"
 chown root:root "$share_directory"
 
-for filename in packages.txt online-setup.sh
+for filename in packages.txt online-setup.sh updates-phase-1.sh
 do
 	if [[ "$filename" == *.sh ]]
 	then
