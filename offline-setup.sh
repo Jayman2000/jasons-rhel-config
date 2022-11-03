@@ -16,3 +16,7 @@ then
 	chmod u=rx,g=,o= "$installation_path"
 	cp --no-preserve=all "$this_scripts_path" "$installation_path"
 fi
+
+declare -r share_directory=/usr/local/share/jasons-rhel-config
+mkdir --parents --mode='u=rx,g=,o=' "$share_directory"
+chown root:root "$share_directory"
