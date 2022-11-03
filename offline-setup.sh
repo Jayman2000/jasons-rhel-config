@@ -4,9 +4,9 @@
 
 function copy_and_set_metadata
 {
-	src="$1"
-	dest="$2"
-	make_executable="$3"
+	local -r src="$1"
+	local -r dest="$2"
+	local -r make_executable="$3"
 
 	touch "$dest"
 	chown root:root "$dest"
