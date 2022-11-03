@@ -8,12 +8,11 @@ from typing import Final
 
 
 CHUNK_DELIMITER : Final = "%end"
-NEWLINE : Final = "\n"
 
 
 def echo_chunk(chunk : str, overwrite : bool) -> str:
     return_value = ["echo"]
-    if chunk.endswith(NEWLINE):
+    if chunk.endswith("\n"):
         chunk = chunk[:-1]
     else:
         return_value.append("-n")
