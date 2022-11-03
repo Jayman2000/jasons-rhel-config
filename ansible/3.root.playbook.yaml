@@ -15,14 +15,6 @@
                 mode: u=rx,g=,o=
                 state: directory
         -
-            name: Install file to be used by online-setup.sh
-            ansible.builtin.copy:
-                src: ../packages.txt
-                dest: /usr/local/share/jasons-rhel-config/packages.txt
-                owner: root
-                group: root
-                mode: u=r,g=,o=
-        -
             name: Install second dependency of updates-phase-1.sh
             ansible.builtin.copy:
                 src: ../online-setup.sh
