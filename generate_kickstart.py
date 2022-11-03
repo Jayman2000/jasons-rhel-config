@@ -1,7 +1,6 @@
 from collections.abc import Iterable
 from crypt import crypt
 from getpass import getpass
-from itertools import chain
 from pathlib import Path, PurePosixPath
 from re import IGNORECASE, compile as compile_regex
 from shlex import quote as shell_quote
@@ -91,8 +90,8 @@ root_password = encrypted_password("root")
 jayman_password = encrypted_password("jayman")
 
 
-with open("ks.cfg", 'w') as file:
-    file.write(f"""
+with open("ks.cfg", 'w') as kickstart_file:
+    kickstart_file.write(f"""
 # The goal of this project is to make it so that I can install RHEL
 # completely automatically. I want this kickstart file to fail if user
 # interaction is required because I want to know when user interaction
@@ -114,9 +113,17 @@ user --name=jayman --iscrypted --password="{jayman_password}" --groups=wheel
 # Requirements for the below post script.
 ## For systemctl and systemd-path:
 systemd
-## For ansible-playbook:
-ansible-core
-%end
+""")
+    with open("packages.txt") as packages_file:
+        packages_contents = packages_file.read()
+    if "%end" in packages_contents:
+        print(
+            "ERROR: packages.txt must not contain “%end”.",
+            file=stderr
+        )
+    else:
+        kickstart_file.write(packages_contents)
+        kickstart_file.write("""%end
 
 %post --log=/root/ks-post.log
 # For whatever reason, multi-user.target is the default, even if you
@@ -124,25 +131,23 @@ ansible-core
 systemctl set-default graphical.target
 
 """)
+        PATHS : Final = (Path(s) for s in (
+            "packages.txt",
+            "offline-setup.sh",
+            "online-setup.sh",
+            "updates-phase-1.sh",
+            "updates-phase-1.service",
+            "updates-phase-1.target"
+        ))
+        for path in PATHS:
+            for command in shell_commands_to_reproduce_file(path):
+                print(command, file=kickstart_file)
 
-    paths = chain(
-        (
-            Path("updates-phase-1.sh"),
-            Path("updates-phase-1.service"),
-            Path("updates-phase-1.target"),
-            Path("run-ansible.sh"),
-        ),
-        Path("ansible").glob("**/*.yaml")
-    )
-    for path in paths:
-        for command in shell_commands_to_reproduce_file(path):
-            print(command, file=file)
-
-    file.write("""
+        kickstart_file.write("""
 
 cd "$(systemd-path user-shared)/jasons-rhel-config"
-chmod +x run-ansible.sh
-./run-ansible.sh
+chmod +x offline-setup.sh
+./offline-setup.sh
 %end
 
 poweroff
