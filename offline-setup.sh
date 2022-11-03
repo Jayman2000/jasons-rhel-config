@@ -38,11 +38,20 @@ chown root:root "$share_directory"
 
 for filename in packages.txt online-setup.sh
 do
+	if [[ "$filename" == *.sh ]]
+	then
+		executable=true
+	else
+		executable=false
+	fi
+
+	echo "$filename" "$executable"
+
 	if [ -e "$filename" ]
 	then
 		copy_and_set_metadata \
 			"$filename" \
 			"$share_directory/$filename" \
-			false
+			"$executable"
 	fi
 done
