@@ -2,10 +2,9 @@ from collections.abc import Iterable
 from crypt import crypt
 from getpass import getpass
 from pathlib import Path, PurePosixPath
-from re import IGNORECASE, compile as compile_regex
 from shlex import quote as shell_quote
 from sys import stderr
-from typing import Final, Optional
+from typing import Final
 
 
 CHUNK_DELIMITER : Final = "%end"
