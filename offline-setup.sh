@@ -18,10 +18,10 @@ function copy_and_set_metadata
 
 function install_files
 {
-	local -r dest="$0"
+	local -r dest="$1"
 	while shift
 	do
-		local filename="$0"
+		local filename="$1"
 		if [[ "$filename" == *.sh ]]
 		then
 			executable=true
@@ -35,7 +35,7 @@ function install_files
 		then
 			copy_and_set_metadata \
 				"$filename" \
-				"$share_directory/$filename" \
+				"$dest/$filename" \
 				"$executable"
 		fi
 	done
