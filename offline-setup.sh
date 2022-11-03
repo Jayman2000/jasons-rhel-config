@@ -19,8 +19,9 @@ function copy_and_set_metadata
 function install_files
 {
 	local -r dest="$1"
-	while shift
+	while [ "$#" -gt 1 ]
 	do
+		shift
 		local filename="$1"
 		if [[ "$filename" == *.sh ]]
 		then
