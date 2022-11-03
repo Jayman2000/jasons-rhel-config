@@ -13,8 +13,9 @@ if [ "$this_scripts_path" != "$installation_path" ]
 then
 	touch "$installation_path"
 	chown root:root "$installation_path"
-	chmod u=rx,g=,o= "$installation_path"
+	chmod u=r,g=,o= "$installation_path"
 	cp --no-preserve=all "$this_scripts_path" "$installation_path"
+	chmod u+x "$installation_path"
 fi
 
 declare -r share_directory=/usr/local/share/jasons-rhel-config
