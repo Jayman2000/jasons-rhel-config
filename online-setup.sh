@@ -8,3 +8,7 @@ sudo dnf \
 	--nobest \
 	install \
 	$(cat /usr/local/share/jasons-rhel-config/packages.txt)
+
+# --login is needed to make sure that all the environment variables that
+# pip needs are set.
+sudo -u jayman bash --login -c 'pip install pipupgrade mypy'
