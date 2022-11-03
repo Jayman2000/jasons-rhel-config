@@ -1,7 +1,6 @@
 from collections.abc import Iterable
 from crypt import crypt
 from getpass import getpass
-from itertools import chain
 from pathlib import Path, PurePosixPath
 from re import IGNORECASE, compile as compile_regex
 from shlex import quote as shell_quote
@@ -114,8 +113,6 @@ user --name=jayman --iscrypted --password="{jayman_password}" --groups=wheel
 # Requirements for the below post script.
 ## For systemctl and systemd-path:
 systemd
-## For ansible-playbook:
-ansible-core
 """)
     with open("packages.txt") as packages_file:
         packages_contents = packages_file.read()
@@ -134,19 +131,15 @@ ansible-core
 systemctl set-default graphical.target
 
 """)
-
-        paths = chain(
-            (
-                Path("offline-setup.sh"),
-                Path("online-setup.sh"),
-                Path("updates-phase-1.sh"),
-                Path("updates-phase-1.service"),
-                Path("updates-phase-1.target"),
-                Path("run-ansible.sh"),
-            ),
-            Path("ansible").glob("**/*.yaml")
-        )
-        for path in paths:
+        PATHS : Final = (Path(s) for s in (
+            "packages.txt",
+            "offline-setup.sh",
+            "online-setup.sh",
+            "updates-phase-1.sh",
+            "updates-phase-1.service",
+            "updates-phase-1.target"
+        ))
+        for path in PATHS:
             for command in shell_commands_to_reproduce_file(path):
                 print(command, file=kickstart_file)
 
@@ -155,8 +148,6 @@ systemctl set-default graphical.target
 cd "$(systemd-path user-shared)/jasons-rhel-config"
 chmod +x offline-setup.sh
 ./offline-setup.sh
-chmod +x run-ansible.sh
-./run-ansible.sh
 %end
 
 poweroff
