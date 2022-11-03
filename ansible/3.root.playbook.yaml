@@ -7,14 +7,6 @@
 
     tasks:
         -
-            name: Install first dependency of updates-phase-1.sh
-            ansible.builtin.copy:
-                src: ../offline-setup.sh
-                dest: /usr/local/bin/offline-setup.sh
-                owner: root
-                group: root
-                mode: u=rx,g=,o=
-        -
             name: Create folder for packages.txt
             ansible.builtin.file:
                 path: /usr/local/share/jasons-rhel-config/
