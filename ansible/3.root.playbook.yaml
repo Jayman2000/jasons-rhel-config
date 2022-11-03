@@ -15,14 +15,6 @@
                 mode: u=rx,g=,o=
                 state: directory
         -
-            name: Install second dependency of updates-phase-1.sh
-            ansible.builtin.copy:
-                src: ../online-setup.sh
-                dest: /usr/local/bin/online-setup.sh
-                owner: root
-                group: root
-                mode: u=rx,g=,o=
-        -
             name: Install script for phase 1 of updates
             ansible.builtin.copy:
                 src: ../updates-phase-1.sh

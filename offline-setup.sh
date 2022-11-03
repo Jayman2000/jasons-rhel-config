@@ -36,10 +36,13 @@ declare -r share_directory=/usr/local/share/jasons-rhel-config
 mkdir --parents --mode='u=rx,g=,o=' "$share_directory"
 chown root:root "$share_directory"
 
-if [ -e ./packages.txt ]
-then
-	copy_and_set_metadata \
-		./packages.txt \
-		"$share_directory/packages.txt" \
-		false
-fi
+for filename in packages.txt online-setup.sh
+do
+	if [ -e "$filename" ]
+	then
+		copy_and_set_metadata \
+			"$filename" \
+			"$share_directory/$filename" \
+			false
+	fi
+done
