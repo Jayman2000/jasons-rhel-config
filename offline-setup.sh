@@ -12,7 +12,7 @@ function copy_and_set_metadata
 	chown root:root "$dest"
 	chmod u=r,g=,o= "$dest"
 	cp --no-preserve=all "$src" "$dest"
-	"$make_executable" && chmod u+x "$installation_path"
+	"$make_executable" && chmod u+x "$dest"
 
 }
 
