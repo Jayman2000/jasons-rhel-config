@@ -54,7 +54,7 @@ if [ "$this_scripts_path" != "$installation_path" ]
 then
 	copy_and_set_metadata \
 		"$this_scripts_path" \
-		/usr/local/bin/offline-setup.sh \
+		"$installation_path" \
 		true
 fi
 
