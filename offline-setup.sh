@@ -16,6 +16,31 @@ function copy_and_set_metadata
 
 }
 
+function install_files
+{
+	local -r dest="$0"
+	while shift
+	do
+		local filename="$0"
+		if [[ "$filename" == *.sh ]]
+		then
+			executable=true
+		else
+			executable=false
+		fi
+
+		echo "$filename" "$executable"
+
+		if [ -e "$filename" ]
+		then
+			copy_and_set_metadata \
+				"$filename" \
+				"$share_directory/$filename" \
+				"$executable"
+		fi
+	done
+}
+
 declare -r git_config=( sudo -u jayman git config --global )
 "${git_config[@]}" user.name "Jason Yundt"
 "${git_config[@]}" user.email "jason@jasonyundt.email"
@@ -36,22 +61,12 @@ declare -r share_directory=/usr/local/share/jasons-rhel-config
 mkdir --parents --mode='u=rx,g=,o=' "$share_directory"
 chown root:root "$share_directory"
 
-for filename in packages.txt online-setup.sh updates-phase-1.sh
-do
-	if [[ "$filename" == *.sh ]]
-	then
-		executable=true
-	else
-		executable=false
-	fi
+install_files \
+	"$share_directory" \
+	packages.txt \
+	online-setup.sh \
+	updates-phase-1.sh
 
-	echo "$filename" "$executable"
-
-	if [ -e "$filename" ]
-	then
-		copy_and_set_metadata \
-			"$filename" \
-			"$share_directory/$filename" \
-			"$executable"
-	fi
-done
+install_files \
+	/etc/systemd/system/ \
+	updates-phase-1.service
