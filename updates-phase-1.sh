@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -x
 
-/usr/local/bin/offline-setup.sh
 /usr/local/share/jasons-rhel-config/online-setup.sh
 
 # Make sure that we don’t get stuck in a reboot loop.
