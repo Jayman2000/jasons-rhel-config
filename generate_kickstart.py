@@ -127,6 +127,7 @@ systemctl set-default graphical.target
 
     paths = chain(
         (
+            Path("offline-setup.sh"),
             Path("updates-phase-1.sh"),
             Path("updates-phase-1.service"),
             Path("updates-phase-1.target"),
@@ -141,6 +142,8 @@ systemctl set-default graphical.target
     file.write("""
 
 cd "$(systemd-path user-shared)/jasons-rhel-config"
+chmod +x offline-setup.sh
+./offline-setup.sh
 chmod +x run-ansible.sh
 ./run-ansible.sh
 %end

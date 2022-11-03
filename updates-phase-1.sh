@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -x
 
+/usr/local/bin/offline-setup.sh
+
 # Make sure that we don’t get stuck in a reboot loop.
 systemctl set-default graphical.target
 
