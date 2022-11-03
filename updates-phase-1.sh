@@ -2,6 +2,7 @@
 set -x
 
 /usr/local/bin/offline-setup.sh
+/usr/local/bin/online-setup.sh
 
 # Make sure that we don’t get stuck in a reboot loop.
 systemctl set-default graphical.target

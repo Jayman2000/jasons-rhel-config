@@ -7,10 +7,18 @@
 
     tasks:
         -
-            name: Install dependency of updates-phase-1.sh
+            name: Install first dependency of updates-phase-1.sh
             ansible.builtin.copy:
                 src: ../offline-setup.sh
                 dest: /usr/local/bin/offline-setup.sh
+                owner: root
+                group: root
+                mode: u=rx,g=,o=
+        -
+            name: Install second dependency of updates-phase-1.sh
+            ansible.builtin.copy:
+                src: ../online-setup.sh
+                dest: /usr/local/bin/online-setup.sh
                 owner: root
                 group: root
                 mode: u=rx,g=,o=

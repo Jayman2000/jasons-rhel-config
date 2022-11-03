@@ -128,6 +128,7 @@ systemctl set-default graphical.target
     paths = chain(
         (
             Path("offline-setup.sh"),
+            Path("online-setup.sh"),
             Path("updates-phase-1.sh"),
             Path("updates-phase-1.service"),
             Path("updates-phase-1.target"),
