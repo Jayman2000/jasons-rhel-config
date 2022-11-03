@@ -69,4 +69,5 @@ install_files \
 
 install_files \
 	/etc/systemd/system/ \
-	updates-phase-1.service
+	updates-phase-1.service \
+	updates-phase-1.target

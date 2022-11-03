@@ -14,11 +14,3 @@
                 group: root
                 mode: u=rx,g=,o=
                 state: directory
-        -
-            name: Install target for phase 1 of updates
-            ansible.builtin.copy:
-                src: ../updates-phase-1.target
-                dest: /etc/systemd/system/updates-phase-1.target
-                owner: root
-                group: root
-                mode: u=r,g=r,o=r
