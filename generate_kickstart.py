@@ -1,76 +1,14 @@
+from base64 import standard_b64encode
 from collections.abc import Iterable
 from crypt import crypt
 from getpass import getpass
+from io import BytesIO
 from itertools import chain
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from shlex import quote as shell_quote
 from sys import stderr
+from tarfile import open as open_tarfile
 from typing import Final
-
-
-CHUNK_DELIMITER : Final = "%end"
-PACKAGES_TXT_PATH : Final = Path(
-    "to_install",
-    "usr",
-    "local",
-    "share",
-    "jasons-rhel-config",
-    "packages.txt"
-)
-
-
-def echo_chunk(chunk : str, overwrite : bool) -> str:
-    return_value = ["echo"]
-    if chunk.endswith("\n"):
-        chunk = chunk[:-1]
-    else:
-        return_value.append("-n")
-    return_value += (
-            shell_quote(chunk),
-            ">" if overwrite else ">>",
-            '"$dest"'
-    )
-    return " ".join(return_value)
-
-
-def shell_commands_to_reproduce_file(path : Path) -> Iterable[str]:
-    """
-    path should be relative to this file.
-    """
-    input_path = path
-    output_path = PurePosixPath(path)
-    if output_path.is_absolute():
-        raise ValueError("output_path should be relative not absolute.")
-
-    set_dest_dir_command = 'dest_dir="$(systemd-path user-shared)/jasons-rhel-config/"'
-    if len(path.parts) > 1:  # If the path contains more than just a filename.
-        set_dest_dir_command += shell_quote(str(output_path.parent)) + "/"
-    yield set_dest_dir_command
-    yield 'mkdir -p "$dest_dir"'
-    yield 'dest="$dest_dir"' + shell_quote(str(output_path.name))
-    # The “newline=''” part helps us reproduce the exact contents of the
-    # file located at path. If that file has CRLFs, the reproduction
-    # will have CRLFs.
-    with input_path.open(newline='') as file:
-        contents = file.read()
-    overwrite = True
-    chunk_start = 0
-    while chunk_start < len(contents):
-        # This prevents the script block from inadvertently containing a
-        # “%end” (“%end” ends script blocks in kickstart [1]).
-        #
-        # [1]: <https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/performing_an_advanced_rhel_9_installation/kickstart-script-file-format-reference_installing-rhel-as-an-experienced-user#kickstart-file-format_kickstart-script-file-format-reference>
-        if contents[chunk_start:].lower().startswith(CHUNK_DELIMITER):
-            yield echo_chunk(contents[chunk_start], overwrite)
-            chunk_start += 1
-        else:
-            chunk_end = contents.find(CHUNK_DELIMITER, chunk_start)
-            # If the delimiter wasn’t found…
-            if chunk_end == -1:
-                chunk_end = len(contents)
-            yield echo_chunk(contents[chunk_start:chunk_end], overwrite)
-            chunk_start = chunk_end
-        overwrite = False
 
 
 def encrypted_password(username : str) -> str:
@@ -96,11 +34,33 @@ def files_in_directory_recursive(directory : Path) -> Iterable[Path]:
             yield path
 
 
-
+PACKAGES : Final = Path(
+        "to_install",
+        "usr",
+        "local",
+        "share",
+        "jasons-rhel-config",
+        "packages.txt"
+)
 organization_id = getpass("Organization id: ")
 activation_key = getpass("Activation key: ")
 root_password = encrypted_password("root")
 jayman_password = encrypted_password("jayman")
+with PACKAGES.open() as packages_file:
+    packages = packages_file.read()
+
+# Credit goes to decaf (https://stackoverflow.com/users/1159217/decaf)
+# for this idea: <https://stackoverflow.com/a/15858237/7593853>
+tar_data = BytesIO()
+with open_tarfile(fileobj=tar_data, mode='w') as tar:
+   for file_to_add in chain(
+           (Path("queue-update.sh"),),
+           files_in_directory_recursive(Path("to_install"))
+    ):
+       tar.add(file_to_add)
+b64_tar_data : str = standard_b64encode(tar_data.getvalue()).decode()
+if "%end" in b64_tar_data:
+    print("ERROR: encoded data contains “%end”. This should never happen.", file=stderr)
 
 
 with open("ks.cfg", 'w') as kickstart_file:
@@ -122,40 +82,20 @@ rootpw --iscrypted {root_password}
 user --name=jayman --iscrypted --password="{jayman_password}" --groups=wheel
 
 %packages
+{packages}
 @^Server with GUI
 # Requirements for the below post script.
-## For systemctl and systemd-path:
+## For systemctl:
 systemd
-""")
-    with PACKAGES_TXT_PATH.open() as packages_file:
-        packages_contents = packages_file.read()
-    if "%end" in packages_contents:
-        print(
-            "ERROR: packages.txt must not contain “%end”.",
-            file=stderr
-        )
-    else:
-        kickstart_file.write(packages_contents)
-        kickstart_file.write("""%end
+%end
 
 %post --log=/root/ks-post.log
-# For whatever reason, multi-user.target is the default, even if you
-# choose “Server with GUI”.
-systemctl set-default graphical.target
-
-""")
-        for path in chain(
-            (Path("offline-setup.sh"),),
-            files_in_directory_recursive(Path("to_install"))
-        ):
-            for command in shell_commands_to_reproduce_file(path):
-                print(command, file=kickstart_file)
-
-        kickstart_file.write("""
-
-cd "$(systemd-path user-shared)/jasons-rhel-config"
-chmod +x offline-setup.sh
-./offline-setup.sh
+declare -r temporary_directory="$(mktemp -d)"
+cd "$temporary_directory"
+echo -n {shell_quote(b64_tar_data)} | base64 -d | tar -x
+./queue-update.sh
+cd /
+rm -rf "$temporary_directory"
 %end
 
 poweroff
