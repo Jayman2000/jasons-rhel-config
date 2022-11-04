@@ -6,6 +6,9 @@ declare -r git_config=( sudo -u jayman git config --global )
 "${git_config[@]}" user.name "Jason Yundt"
 "${git_config[@]}" user.email "jason@jasonyundt.email"
 
+sudo -u jayman mkdir --parents ~jayman/Documents/Home/local/mnt
+sudo -u jayman mkdir ~jayman/Documents/Home/VC
+
 cd to_install
 shopt -s nullglob
 # Thanks, evilsoup (<https://superuser.com/users/180990/evilsoup>) for
