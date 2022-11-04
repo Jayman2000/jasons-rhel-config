@@ -2,61 +2,32 @@
 # This file is for setup tasks that should succeed even if the system
 # has no network connection.
 
-function copy_and_set_metadata
-{
-	local -r src="$1"
-	local -r dest="$2"
-	local -r make_executable="$3"
-
-	touch "$dest"
-	chown root:root "$dest"
-	chmod u=r,g=,o= "$dest"
-	cp --no-preserve=all "$src" "$dest"
-	"$make_executable" && chmod u+x "$dest"
-
-}
-
-function install_files
-{
-	local -r dest="$1"
-	while [ "$#" -gt 1 ]
-	do
-		shift
-		local filename="$1"
-		if [[ "$filename" == *.sh ]]
-		then
-			executable=true
-		else
-			executable=false
-		fi
-
-		echo "$filename" "$executable"
-
-		if [ -e "$filename" ]
-		then
-			copy_and_set_metadata \
-				"$filename" \
-				"$dest/$filename" \
-				"$executable"
-		fi
-	done
-}
-
 declare -r git_config=( sudo -u jayman git config --global )
 "${git_config[@]}" user.name "Jason Yundt"
 "${git_config[@]}" user.email "jason@jasonyundt.email"
 
-declare -r share_directory=/usr/local/share/jasons-rhel-config
-mkdir --parents --mode='u=rx,g=,o=' "$share_directory"
-chown root:root "$share_directory"
-
-install_files \
-	"$share_directory" \
-	packages.txt \
-	online-setup.sh \
-	updates-phase-1.sh
-
-install_files \
-	/etc/systemd/system/ \
-	updates-phase-1.service \
-	updates-phase-1.target
+cd to_install
+shopt -s nullglob
+# Thanks, evilsoup (<https://superuser.com/users/180990/evilsoup>) for
+# this answer: <https://superuser.com/a/600621/954602>
+shopt -s globstar
+for path in **
+do
+	if [ -f "$path" ]
+	then
+		if [[ "$path" == *.sh ]]
+		then
+			mode="u=rx,g=,o="
+		else
+			mode="u=r,g=,o="
+		fi
+		install \
+			-D \
+			--owner=root \
+			--group=root \
+			--mode="$mode" \
+			"$path" \
+			"/$path"
+	fi &
+done
+wait

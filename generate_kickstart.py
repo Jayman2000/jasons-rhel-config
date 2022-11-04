@@ -8,6 +8,14 @@ from typing import Final
 
 
 CHUNK_DELIMITER : Final = "%end"
+PACKAGES_TXT_PATH : Final = Path(
+    "to_install",
+    "usr",
+    "local",
+    "share",
+    "jasons-rhel-config",
+    "packages.txt"
+)
 
 
 def echo_chunk(chunk : str, overwrite : bool) -> str:
@@ -81,6 +89,12 @@ def encrypted_password(username : str) -> str:
     return password
 
 
+def files_in_directory_recursive(directory : Path) -> Iterable[Path]:
+    for path in directory.glob("**/*"):
+        if path.is_file():
+            yield path
+
+
 
 organization_id = getpass("Organization id: ")
 activation_key = getpass("Activation key: ")
@@ -112,7 +126,7 @@ user --name=jayman --iscrypted --password="{jayman_password}" --groups=wheel
 ## For systemctl and systemd-path:
 systemd
 """)
-    with open("packages.txt") as packages_file:
+    with PACKAGES_TXT_PATH.open() as packages_file:
         packages_contents = packages_file.read()
     if "%end" in packages_contents:
         print(
@@ -129,15 +143,7 @@ systemd
 systemctl set-default graphical.target
 
 """)
-        PATHS : Final = (Path(s) for s in (
-            "packages.txt",
-            "offline-setup.sh",
-            "online-setup.sh",
-            "updates-phase-1.sh",
-            "updates-phase-1.service",
-            "updates-phase-1.target"
-        ))
-        for path in PATHS:
+        for path in files_in_directory_recursive(Path("to_install")):
             for command in shell_commands_to_reproduce_file(path):
                 print(command, file=kickstart_file)
 
