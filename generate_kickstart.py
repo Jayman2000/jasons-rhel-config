@@ -1,6 +1,7 @@
 from collections.abc import Iterable
 from crypt import crypt
 from getpass import getpass
+from itertools import chain
 from pathlib import Path, PurePosixPath
 from shlex import quote as shell_quote
 from sys import stderr
@@ -143,7 +144,10 @@ systemd
 systemctl set-default graphical.target
 
 """)
-        for path in files_in_directory_recursive(Path("to_install")):
+        for path in chain(
+            (Path("offline-setup.sh"),),
+            files_in_directory_recursive(Path("to_install"))
+        ):
             for command in shell_commands_to_reproduce_file(path):
                 print(command, file=kickstart_file)
 
