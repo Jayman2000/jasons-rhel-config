@@ -4,6 +4,10 @@ systemctl set-default graphical.target
 
 sudo dnf install --assumeyes --nobest $(< /usr/local/share/jasons-rhel-config/packages.txt)
 
+declare -r git_config=( sudo -u jayman git config --global )
+"${git_config[@]}" user.name "Jason Yundt"
+"${git_config[@]}" user.email "jason@jasonyundt.email"
+
 # Now that phase 1 (non-PackageKit) updates are done, queue phase 2:
 pkcon update --noninteractive --only-download
 pkcon_exit_status="$?"
