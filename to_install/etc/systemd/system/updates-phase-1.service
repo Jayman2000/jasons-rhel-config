@@ -1,9 +1,0 @@
-[Unit]
-Description=Phase 1 of system updates
-Wants=network-online.target
-After=network-online.target
-FailureAction=reboot
-SuccessAction=reboot
-
-[Service]
-ExecStart=/usr/local/share/jasons-rhel-config/updates-phase-1.sh

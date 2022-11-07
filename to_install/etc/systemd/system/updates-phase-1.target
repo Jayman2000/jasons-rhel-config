@@ -1,3 +1,0 @@
-[Unit]
-Description=Activate phase 1 of system updates on boot
-Wants=updates-phase-1.service
