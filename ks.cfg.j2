@@ -4,6 +4,16 @@
 # is required so that I can eliminate it.
 cmdline
 
+rhsm --organization={{
+	jasons_kickstart_compiler.get_field("Organization id")
+}} --activation-key="{{
+	jasons_kickstart_compiler.get_field(
+		"Activation key",
+		is_password=True,
+		encrypt_password=False
+	)
+}}"
+
 ignoredisk --only-use=disk/by-path/virtio-pci-0000:05:00.0
 clearpart --all
 autopart
