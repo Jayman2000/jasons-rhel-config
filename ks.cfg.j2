@@ -9,3 +9,11 @@ clearpart --all
 autopart
 
 rootpw --lock
+user --name=jayman --groups=wheel --iscrypted --password={{
+	jasons_kickstart_compiler.get_field(
+		"jayman",
+		prompt="Password for jayman: ",
+		is_password=True,
+		encrypt_password=True
+	)
+}}
