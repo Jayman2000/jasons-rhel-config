@@ -17,3 +17,14 @@ user --name=jayman --groups=wheel --iscrypted --password={{
 		encrypt_password=True
 	)
 }}
+
+%packages
+# This section is intentionally left empty. In general, it’s not a very
+# good idea to depend on the %packages section to install packages.
+# Adding packages to %packages is easy, but the only way to make sure
+# that a system actually has those packages installed is to reinstall
+# the system.
+#
+# In fact, I would prefer to not include a packages section at all, but
+# Anaconda aborts the installation if you do that.
+%end
