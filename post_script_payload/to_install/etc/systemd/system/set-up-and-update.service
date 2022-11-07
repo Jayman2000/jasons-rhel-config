@@ -1,0 +1,9 @@
+[Unit]
+Description=Set up and then update system
+Wants=network-online.target
+After=network-online.target
+FailureAction=reboot
+SuccessAction=reboot
+
+[Service]
+ExecStart=/usr/local/share/jasons-rhel-config/set-up-and-update.sh
