@@ -9,7 +9,10 @@ then
 	rm /etc/systemd/default.target
 fi
 
-dnf install --nobest --assumeyes PackageKit
+dnf install --nobest --assumeyes git PackageKit
+declare -r git_config=( sudo -u jayman git config --global )
+"${git_config[@]}" user.name 'Jason Yundt'
+"${git_config[@]}" user.email jason@jasonyundt.email
 
 pkcon update --noninteractive --only-download
 pkcon_exit_status="$?"
