@@ -27,4 +27,5 @@ then
         then
                 exit 0
         fi
+fi
 exit "$pkcon_exit_status"
