@@ -6,4 +6,4 @@ FailureAction=reboot
 SuccessAction=reboot
 
 [Service]
-ExecStart=/usr/local/share/jasons-rhel-config/set-up-and-update.sh
+ExecStart=/usr/local/bin/set-up-and-update.sh
