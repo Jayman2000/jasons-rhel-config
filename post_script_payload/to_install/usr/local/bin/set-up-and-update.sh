@@ -9,20 +9,34 @@ then
 	rm /etc/systemd/default.target
 fi
 
-to_install=( )
-for package in git PackageKit
-do
-	# If the package isn’t installed…
-	if ! rpm -q "$package"
+declare -r dnf_install=( dnf install --nobest --assumeyes )
+function potentially_install
+{
+	local to_install=( )
+	for package in "$@"
+	do
+		# If the package isn’t installed…
+		if ! rpm -q "$package"
+		then
+			to_install+=( "$package" )
+		fi
+	done
+	if [ "${#to_install[@]}" -gt 0 ]
 	then
-		to_install+=( "$package" )
+		"${dnf_install[@]}" "${to_install[@]}"
 	fi
-done
-readonly -a to_install
-if [ "${#to_install[@]}" -gt 0 ]
+}
+
+potentially_install subscription-manager
+if ! rpm -q epel-release
 then
-	dnf install --nobest --assumeyes "${to_install[@]}"
+	# These commands came from the installation instructions for
+	# EPEL on RHEL 9:
+	# <https://docs.fedoraproject.org/en-US/epel/#_rhel_9>
+	subscription-manager repos --enable "codeready-builder-for-rhel-9-$(arch)-rpms"
+	"${dnf_install[@]}" 'https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm'
 fi
+potentially_install git PackageKit
 
 declare -r git_config=( sudo -u jayman git config --global )
 "${git_config[@]}" user.name 'Jason Yundt'
