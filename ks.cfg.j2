@@ -41,6 +41,8 @@ coreutils
 bash
 sudo
 systemd
+# Dependencies for /usr/local/bin/set-up-and-update.sh
+dnf
 %end
 
 {{ jasons_kickstart_compiler.self_extracting_post_script(Path("post_script_payload")) }}
