@@ -9,7 +9,21 @@ then
 	rm /etc/systemd/default.target
 fi
 
-dnf install --nobest --assumeyes git PackageKit
+to_install=( )
+for package in git PackageKit
+do
+	# If the package isn’t installed…
+	if ! rpm -q "$package"
+	then
+		to_install+=( "$package" )
+	fi
+done
+readonly -a to_install
+if [ "${#to_install[@]}" -gt 0 ]
+then
+	dnf install --nobest --assumeyes "${to_install[@]}"
+fi
+
 declare -r git_config=( sudo -u jayman git config --global )
 "${git_config[@]}" user.name 'Jason Yundt'
 "${git_config[@]}" user.email jason@jasonyundt.email
