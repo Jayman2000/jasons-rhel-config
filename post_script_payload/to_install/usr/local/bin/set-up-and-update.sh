@@ -27,6 +27,14 @@ function potentially_install
 	fi
 }
 
+function pkcon_exit_status_ok
+{
+	# According to pkcon(1), exit status 5 means “Nothing useful was
+	# done.” For the purposes of this script, that shouldn’t count
+	# as an error.
+	[ "$*" = 0 ] || [ "$*" = 5 ]
+}
+
 potentially_install subscription-manager
 if ! rpm -q epel-release
 then
@@ -42,18 +50,22 @@ declare -r git_config=( sudo -u jayman git config --global )
 "${git_config[@]}" user.name 'Jason Yundt'
 "${git_config[@]}" user.email jason@jasonyundt.email
 
-pkcon update --noninteractive --only-download
-pkcon_exit_status="$?"
+pkcon refresh --noninteractive
+es="$?"
 
-# According to pkcon(1), exit status 5 means “Nothing useful was done.”
-# For the purposes of this script, that shouldn’t count as an error.
-if [ "$pkcon_exit_status" = 0 ] || [ "$pkcon_exit_status" = 5 ]
+if pkcon_exit_status_ok "$es"
 then
-        pkcon offline-trigger --noninteractive
-        pkcon_exit_status="$?"
-        if [ "$pkcon_exit_status" = 5 ]
-        then
-                exit 0
-        fi
+	pkcon update --noninteractive --only-download
+	es="$?"
+	if pkcon_exit_status_ok "$es"
+	then
+		pkcon offline-trigger --noninteractive
+		es="$?"
+		if pkcon_exit_status_ok "$es"
+		then
+			exit 0
+		fi
+	fi
+
 fi
-exit "$pkcon_exit_status"
+exit "$es"
