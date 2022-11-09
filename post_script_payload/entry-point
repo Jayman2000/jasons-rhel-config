@@ -15,6 +15,7 @@ do
                         mode="u=r,g=,o="
                 fi
                 sudo install \
+			-Z \
                         -D \
                         --owner=root \
                         --group=root \
