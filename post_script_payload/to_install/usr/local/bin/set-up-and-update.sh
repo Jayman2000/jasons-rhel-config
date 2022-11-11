@@ -44,7 +44,7 @@ then
 	subscription-manager repos --enable "codeready-builder-for-rhel-9-$(arch)-rpms"
 	"${dnf_install[@]}" 'https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm'
 fi
-potentially_install git PackageKit @"Server with GUI"
+potentially_install git PackageKit @"Server with GUI" python
 
 declare -r git_config=( sudo -u jayman git config --global )
 "${git_config[@]}" user.name 'Jason Yundt'
