@@ -49,6 +49,7 @@ potentially_install git PackageKit @"Server with GUI"
 declare -r git_config=( sudo -u jayman git config --global )
 "${git_config[@]}" user.name 'Jason Yundt'
 "${git_config[@]}" user.email jason@jasonyundt.email
+"${git_config[@]}" alias.f 'fetch --all --prune'
 
 pkcon refresh --noninteractive
 es="$?"
