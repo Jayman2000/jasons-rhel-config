@@ -14,7 +14,9 @@ rhsm --organization={{
 	)
 }}"
 
-ignoredisk --only-use=disk/by-path/virtio-pci-0000:05:00.0
+ignoredisk --only-use={{
+	jasons_kickstart_compiler.get_field("disk path")
+}}
 clearpart --all
 autopart
 
