@@ -58,15 +58,17 @@ if pkcon_exit_status_ok "$es"
 then
 	pkcon update --noninteractive --only-download
 	es="$?"
-	if pkcon_exit_status_ok "$es"
+	if pkcon_exit_status_ok "$es" && pkcon offline-get-prepared
 	then
 		pkcon offline-trigger --noninteractive
 		es="$?"
-		if pkcon_exit_status_ok "$es"
-		then
-			exit 0
-		fi
 	fi
 
 fi
-exit "$es"
+
+if pkcon_exit_status_ok "$es"
+then
+	exit 0
+else
+	exit "$es"
+fi
