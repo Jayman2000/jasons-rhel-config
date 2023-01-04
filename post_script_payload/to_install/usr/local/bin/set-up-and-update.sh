@@ -46,6 +46,8 @@ then
 fi
 potentially_install git PackageKit @"Server with GUI" python
 
+sudo -u jayman gsettings set org.gnome.desktop.peripherals.touchpad natural-scroll false
+
 declare -r git_config=( sudo -u jayman git config --global )
 "${git_config[@]}" user.name 'Jason Yundt'
 "${git_config[@]}" user.email jason@jasonyundt.email
