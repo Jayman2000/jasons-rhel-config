@@ -47,6 +47,7 @@ fi
 potentially_install git PackageKit @"Server with GUI" python
 
 sudo -u jayman gsettings set org.gnome.desktop.peripherals.touchpad natural-scroll false
+sudo -u jayman gsettings set org.gnome.settings-daemon.plugins.color night-light-enabled true
 
 declare -r git_config=( sudo -u jayman git config --global )
 "${git_config[@]}" user.name 'Jason Yundt'
