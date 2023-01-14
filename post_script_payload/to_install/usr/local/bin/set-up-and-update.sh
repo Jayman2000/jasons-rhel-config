@@ -44,7 +44,7 @@ then
 	subscription-manager repos --enable "codeready-builder-for-rhel-9-$(arch)-rpms"
 	"${dnf_install[@]}" 'https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm'
 fi
-potentially_install git PackageKit @"Server with GUI" python
+potentially_install git PackageKit @"Server with GUI" python virt-manager
 
 sudo -u jayman gsettings set org.gnome.desktop.peripherals.touchpad natural-scroll false
 sudo -u jayman gsettings set org.gnome.settings-daemon.plugins.color night-light-enabled true
