@@ -104,24 +104,28 @@ then
 			if [ "$api_available" -eq 1 ]
 			then
 				folder_ids=( syrpl-vpqnk )
+				folder_labels=( "Keep Across Linux Distros!" )
 				folder_paths=( .save )
 				# These two folders are pretty big, so we shouldn’t
 				# share them with the VM.
 				if ! hostname | grep Jason-Lemur-Pro-VM-Test > /dev/null
 				then
 					folder_ids[1]=eheef-uq5hv
-					folder_paths[1]="Game Data"
+					folder_labels[1]="Game Data"
+					folder_paths[1]="${folder_labels[1]}"
 
 					folder_ids[2]=mjwge-zeznc
-					folder_paths[2]="Projects"
+					folder_labels[2]="Projects"
+					folder_paths[2]="${folder_labels[2]}"
 				fi
-				if [ "${#folder_ids[@]}" -eq "${#folder_paths[@]}" ]
+				if [ "${#folder_ids[@]}" -eq "${#folder_paths[@]}" ] && [ "${#folder_ids[@]}" -eq "${#folder_labels[@]}" ]
 				then
 					readonly syncthing_config=( "${syncthing[@]}" cli config )
 					for ((i=0; i < "${#folder_ids[@]}"; i++))
 					do
 						"${syncthing_config[@]}" folders add \
 							--id "${folder_ids[$i]}" \
+							--label "${folder_labels[$i]}" \
 							--path "~/Documents/Home/Syncthing/${folder_paths[$i]}"
 					done
 
@@ -149,7 +153,7 @@ then
 						fi
 					done
 				else
-					echo_err "The folder_ids array and the folder_paths array weren’t the same length. This should never happen."
+					echo_err "The folder_ids, folder_labels and folder_paths array weren’t all the same length. This should never happen."
 					disable_syncthing
 				fi
 			else
