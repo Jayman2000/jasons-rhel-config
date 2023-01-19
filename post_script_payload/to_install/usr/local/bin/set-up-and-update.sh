@@ -14,6 +14,16 @@ function echo_err
 	echo "$@" 1>&2
 }
 
+function disable_syncthing
+{
+	echo_err "Disabling syncthing@jayman to make this error more noticable…"
+	if ! systemctl disable syncthing@jayman
+	then
+		echo_err "Failed to disable syncthing@jayman."
+	fi
+
+}
+
 declare -r dnf_install=( dnf install --nobest --assumeyes )
 function potentially_install
 {
@@ -93,48 +103,58 @@ then
 
 			if [ "$api_available" -eq 1 ]
 			then
-				folder_ids=( syrpl-vpqnk )  # .save
+				folder_ids=( syrpl-vpqnk )
+				folder_paths=( .save )
 				# These two folders are pretty big, so we shouldn’t
 				# share them with the VM.
 				if ! hostname | grep Jason-Lemur-Pro-VM-Test > /dev/null
 				then
-					folder_ids[1]=eheef-uq5hv  # Game Data
-					folder_ids[2]=mjwge-zeznc  # Projects
-				fi
-				readonly syncthing_config=( "${syncthing[@]}" cli config )
-				for folder_id in "${folder_ids[@]}"
-				do
-					"${syncthing_config[@]}" folders add --id "$folder_id" --path "~/Documents/Home/Syncthing/$folder_id"
-				done
+					folder_ids[1]=eheef-uq5hv
+					folder_paths[1]="Game Data"
 
-				readonly device_ids=(
-					AEU6Q56-L5J3AGY-Z4H6S4A-JZH6VPO-DXI66VM-GFBDSGT-CQQTNMY-TKH6CQY  # Graphical-Test-VM
-					7A735CO-FSRRF2I-FN5WRGV-OHGRWHR-TF4Z47H-OJBHRBA-G7CP7BN-FTLXGAX  # Jason-Desktop-Linux
-					DAW6JNR-DHBHAVL-42UVJDB-SENEDDQ-OVLHNH3-XOVKDE4-JXVIQ23-GJBG6QZ  # Jason-Desktop-Windows
-					HIUQOJU-CNAGZCU-BHAFKP7-2T4WAO3-XUMWZKC-N2ZXQWD-XSGWNZH-WRGEWAP  # Jason-Laptop-Linux
-					QZBHFNE-XJWGGY4-6JXYMD3-D3HVGR2-C64BVH2-6M644XU-RSVRGAS-QZ752Q7  # Server
-				)
-				for device_id in "${device_ids[@]}"
-				do
-					if "${syncthing_config[@]}" devices add --device-id "$device_id"
-					then
-						for folder_id in "${folder_ids[@]}"
-						do
-							if ! "${syncthing_config[@]}" folders "$folder_id" devices add --device-id "$device_id"
-							then
-								echo_err "Failed to share a folder ($folder_id) with a device ($device_id)."
-							fi
-						done
-					else
-						echo_err "Failed to add Syncthing device: $device_id."
-					fi
-				done
-			else
-				echo_err "syncthing@jayman sucessfully started, but the HTTP API never became available. Disabling syncthing@jayman to make this error more noticable…"
-				if ! systemctl disable syncthing@jayman
-				then
-					echo_err "Failed to disable syncthing@jayman."
+					folder_ids[2]=mjwge-zeznc
+					folder_paths[2]="Projects"
 				fi
+				if [ "${#folder_ids[@]}" -eq "${#folder_paths[@]}" ]
+				then
+					readonly syncthing_config=( "${syncthing[@]}" cli config )
+					for ((i=0; i < "${#folder_ids[@]}"; i++))
+					do
+						"${syncthing_config[@]}" folders add \
+							--id "${folder_ids[$i]}" \
+							--path "~/Documents/Home/Syncthing/${folder_paths[$i]}"
+					done
+
+					readonly device_ids=(
+						AEU6Q56-L5J3AGY-Z4H6S4A-JZH6VPO-DXI66VM-GFBDSGT-CQQTNMY-TKH6CQY  # Graphical-Test-VM
+						7A735CO-FSRRF2I-FN5WRGV-OHGRWHR-TF4Z47H-OJBHRBA-G7CP7BN-FTLXGAX  # Jason-Desktop-Linux
+						DAW6JNR-DHBHAVL-42UVJDB-SENEDDQ-OVLHNH3-XOVKDE4-JXVIQ23-GJBG6QZ  # Jason-Desktop-Windows
+						HIUQOJU-CNAGZCU-BHAFKP7-2T4WAO3-XUMWZKC-N2ZXQWD-XSGWNZH-WRGEWAP  # Jason-Laptop-Linux
+						QZBHFNE-XJWGGY4-6JXYMD3-D3HVGR2-C64BVH2-6M644XU-RSVRGAS-QZ752Q7  # Server
+					)
+					for device_id in "${device_ids[@]}"
+					do
+						if "${syncthing_config[@]}" devices add --device-id "$device_id"
+						then
+							for ((i=0; i < "${#folder_ids[@]}"; i++))
+							do
+								folder_id="${folder_ids[$i]}"
+								if ! "${syncthing_config[@]}" folders "$folder_id" devices add --device-id "$device_id"
+								then
+									echo_err "Failed to share a folder ($folder_id) with a device ($device_id)."
+								fi
+							done
+						else
+							echo_err "Failed to add Syncthing device: $device_id."
+						fi
+					done
+				else
+					echo_err "The folder_ids array and the folder_paths array weren’t the same length. This should never happen."
+					disable_syncthing
+				fi
+			else
+				echo_err "syncthing@jayman sucessfully started, but the HTTP API never became available."
+				disable_syncthing
 			fi
 		else
 			echo_err "Failed to enable syncthing@jayman."
