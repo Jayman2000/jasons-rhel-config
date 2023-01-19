@@ -93,11 +93,14 @@ then
 
 			if [ "$api_available" -eq 1 ]
 			then
-				readonly folder_ids=(
-					syrpl-vpqnk  # .save
-					eheef-uq5hv  # Game Data
-					mjwge-zeznc  # Projects
-				)
+				folder_ids=( syrpl-vpqnk )  # .save
+				# These two folders are pretty big, so we shouldn’t
+				# share them with the VM.
+				if ! hostname | grep Jason-Lemur-Pro-VM-Test > /dev/null
+				then
+					folder_ids[1]=eheef-uq5hv  # Game Data
+					folder_ids[2]=mjwge-zeznc  # Projects
+				fi
 				readonly syncthing_config=( "${syncthing[@]}" cli config )
 				for folder_id in "${folder_ids[@]}"
 				do
