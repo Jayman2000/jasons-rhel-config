@@ -106,7 +106,8 @@ then
 
 	if [ "$api_available" -eq 1 ]
 	then
-		folder_ids=( syrpl-vpqnk )
+		readonly save_folder_id=syrpl-vpqnk
+		folder_ids=( "$save_folder_id" )
 		folder_labels=( "Keep Across Linux Distros!" )
 		folder_paths=( .save )
 		# These two folders are pretty big, so we shouldn’t
@@ -137,13 +138,23 @@ then
 				fi
 			done
 
-			readonly device_ids=(
+			readonly test_vm_id=MRLHROA-JB6ZV7Y-QQORSLQ-SQ5DOBW-3DCCF6Q-C4VWYKL-UFI7EDD-B6THXQB  # Jason-Lemur-Pro-VM-Test
+			device_ids=(
 				AEU6Q56-L5J3AGY-Z4H6S4A-JZH6VPO-DXI66VM-GFBDSGT-CQQTNMY-TKH6CQY  # Graphical-Test-VM
 				7A735CO-FSRRF2I-FN5WRGV-OHGRWHR-TF4Z47H-OJBHRBA-G7CP7BN-FTLXGAX  # Jason-Desktop-Linux
 				DAW6JNR-DHBHAVL-42UVJDB-SENEDDQ-OVLHNH3-XOVKDE4-JXVIQ23-GJBG6QZ  # Jason-Desktop-Windows
 				HIUQOJU-CNAGZCU-BHAFKP7-2T4WAO3-XUMWZKC-N2ZXQWD-XSGWNZH-WRGEWAP  # Jason-Laptop-Linux
 				QZBHFNE-XJWGGY4-6JXYMD3-D3HVGR2-C64BVH2-6M644XU-RSVRGAS-QZ752Q7  # Server
 			)
+			readonly hostname="$(hostname)"
+			if [ "$hostname" != Jason-Lemur-Pro ]
+			then
+				device_ids+=( 3PGXPGR-OWRBYZG-JQEQH73-XE7LIUP-F6OEYWJ-IC3DLCW-WHNAU3R-G2P6SAM )  # Jason-Lemur-Pro
+			fi
+			if [ "$hostname" != Jason-Lemur-Pro-VM-Test ]
+			then
+				device_ids+=( "$test_vm_id" )
+			fi
 			readonly already_added_devices="$("${syncthing_config[@]}" devices list)"
 			for device_id in "${device_ids[@]}"
 			do
@@ -160,9 +171,13 @@ then
 					already_added_devices_for_folder="$("${syncthing_config[@]}" folders "$folder_id" devices list)"
 					if ! echo "$already_added_devices_for_folder" | grep -Fe "$device_id" > /dev/null
 					then
-						if ! "${syncthing_config[@]}" folders "$folder_id" devices add --device-id "$device_id"
+						# Make sure that the save folder is the only one that’s shared with Jason-Lemur-Pro-VM-Test.
+						if [ "$device_id" != "$test_vm_id" ] || [ "$folder_id" = "$save_folder_id" ]
 						then
-							echo_err "Failed to share a folder ($folder_id) with a device ($device_id)."
+							if ! "${syncthing_config[@]}" folders "$folder_id" devices add --device-id "$device_id"
+							then
+								echo_err "Failed to share a folder ($folder_id) with a device ($device_id)."
+							fi
 						fi
 					fi
 				done
