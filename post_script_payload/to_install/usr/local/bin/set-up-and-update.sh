@@ -75,97 +75,108 @@ declare -r git_config=( sudo -u jayman git config --global )
 "${git_config[@]}" user.email jason@jasonyundt.email
 "${git_config[@]}" alias.f 'fetch --all --prune'
 
-# If syncthing@jayman isn’t enabled, then assume that we haven’t set up Syncthing yet.
-if systemctl is-enabled syncthing@jayman | grep disabled > /dev/null
+readonly syncthing=( sudo -u jayman syncthing )
+if [ ! -d ~jayman/.config/syncthing ]
 then
-	readonly syncthing=( sudo -u jayman syncthing )
-	if "${syncthing[@]}" generate --no-default-folder
+	if ! "${syncthing[@]}" generate --no-default-folder
 	then
-		# The --now is necessary. Syncthing needs to be running in order to add devices.
-		if systemctl enable --now syncthing@jayman
-		then
-			# Syncthing needs a second to start. Wait for Syncthing’s HTTP API to be up…
-			api_available=0
-			tries=0
-			readonly max_tries=60
-			readonly seconds_before_retrying=1
-			while [ "$tries" -lt "$max_tries" ]
-			do
-				sleep 1s
-				if "${syncthing[@]}" cli show system &> /dev/null
-				then
-					# The Syncthing HTTP API is now up!
-					api_available=1
-					break
-				fi
-				let tries++
-			done
-
-			if [ "$api_available" -eq 1 ]
-			then
-				folder_ids=( syrpl-vpqnk )
-				folder_labels=( "Keep Across Linux Distros!" )
-				folder_paths=( .save )
-				# These two folders are pretty big, so we shouldn’t
-				# share them with the VM.
-				if ! hostname | grep Jason-Lemur-Pro-VM-Test > /dev/null
-				then
-					folder_ids[1]=eheef-uq5hv
-					folder_labels[1]="Game Data"
-					folder_paths[1]="${folder_labels[1]}"
-
-					folder_ids[2]=mjwge-zeznc
-					folder_labels[2]="Projects"
-					folder_paths[2]="${folder_labels[2]}"
-				fi
-				if [ "${#folder_ids[@]}" -eq "${#folder_paths[@]}" ] && [ "${#folder_ids[@]}" -eq "${#folder_labels[@]}" ]
-				then
-					readonly syncthing_config=( "${syncthing[@]}" cli config )
-					for ((i=0; i < "${#folder_ids[@]}"; i++))
-					do
-						"${syncthing_config[@]}" folders add \
-							--id "${folder_ids[$i]}" \
-							--label "${folder_labels[$i]}" \
-							--path "~/Documents/Home/Syncthing/${folder_paths[$i]}"
-					done
-
-					readonly device_ids=(
-						AEU6Q56-L5J3AGY-Z4H6S4A-JZH6VPO-DXI66VM-GFBDSGT-CQQTNMY-TKH6CQY  # Graphical-Test-VM
-						7A735CO-FSRRF2I-FN5WRGV-OHGRWHR-TF4Z47H-OJBHRBA-G7CP7BN-FTLXGAX  # Jason-Desktop-Linux
-						DAW6JNR-DHBHAVL-42UVJDB-SENEDDQ-OVLHNH3-XOVKDE4-JXVIQ23-GJBG6QZ  # Jason-Desktop-Windows
-						HIUQOJU-CNAGZCU-BHAFKP7-2T4WAO3-XUMWZKC-N2ZXQWD-XSGWNZH-WRGEWAP  # Jason-Laptop-Linux
-						QZBHFNE-XJWGGY4-6JXYMD3-D3HVGR2-C64BVH2-6M644XU-RSVRGAS-QZ752Q7  # Server
-					)
-					for device_id in "${device_ids[@]}"
-					do
-						if "${syncthing_config[@]}" devices add --device-id "$device_id"
-						then
-							for ((i=0; i < "${#folder_ids[@]}"; i++))
-							do
-								folder_id="${folder_ids[$i]}"
-								if ! "${syncthing_config[@]}" folders "$folder_id" devices add --device-id "$device_id"
-								then
-									echo_err "Failed to share a folder ($folder_id) with a device ($device_id)."
-								fi
-							done
-						else
-							echo_err "Failed to add Syncthing device: $device_id."
-						fi
-					done
-				else
-					echo_err "The folder_ids, folder_labels and folder_paths array weren’t all the same length. This should never happen."
-					disable_syncthing
-				fi
-			else
-				echo_err "syncthing@jayman sucessfully started, but the HTTP API never became available."
-				disable_syncthing
-			fi
-		else
-			echo_err "Failed to enable syncthing@jayman."
-		fi
-	else
 		echo_err "Failed to generate Syncthing config."
 	fi
+fi
+
+# The --now is necessary. Syncthing needs to be running in order to add devices.
+if systemctl enable --now syncthing@jayman
+then
+	# Syncthing needs a second to start. Wait for Syncthing’s HTTP API to be up…
+	api_available=0
+	tries=0
+	readonly max_tries=60
+	readonly seconds_before_retrying=1
+	while [ "$tries" -lt "$max_tries" ]
+	do
+		sleep 1s
+		if "${syncthing[@]}" cli show system &> /dev/null
+		then
+			# The Syncthing HTTP API is now up!
+			api_available=1
+			break
+		fi
+		let tries++
+	done
+
+	if [ "$api_available" -eq 1 ]
+	then
+		folder_ids=( syrpl-vpqnk )
+		folder_labels=( "Keep Across Linux Distros!" )
+		folder_paths=( .save )
+		# These two folders are pretty big, so we shouldn’t
+		# share them with the VM.
+		if ! hostname | grep Jason-Lemur-Pro-VM-Test > /dev/null
+		then
+			folder_ids[1]=eheef-uq5hv
+			folder_labels[1]="Game Data"
+			folder_paths[1]="${folder_labels[1]}"
+
+			folder_ids[2]=mjwge-zeznc
+			folder_labels[2]="Projects"
+			folder_paths[2]="${folder_labels[2]}"
+		fi
+		if [ "${#folder_ids[@]}" -eq "${#folder_paths[@]}" ] && [ "${#folder_ids[@]}" -eq "${#folder_labels[@]}" ]
+		then
+			readonly syncthing_config=( "${syncthing[@]}" cli config )
+			readonly already_added_folders="$("${syncthing_config[@]}" folders list)"
+			for ((i=0; i < "${#folder_ids[@]}"; i++))
+			do
+				folder_id="${folder_ids[$i]}"
+				if ! echo "$already_added_folders" | grep -Fe "$folder_id" > /dev/null
+				then
+					"${syncthing_config[@]}" folders add \
+						--id "$folder_id" \
+						--label "${folder_labels[$i]}" \
+						--path "~/Documents/Home/Syncthing/${folder_paths[$i]}"
+				fi
+			done
+
+			readonly device_ids=(
+				AEU6Q56-L5J3AGY-Z4H6S4A-JZH6VPO-DXI66VM-GFBDSGT-CQQTNMY-TKH6CQY  # Graphical-Test-VM
+				7A735CO-FSRRF2I-FN5WRGV-OHGRWHR-TF4Z47H-OJBHRBA-G7CP7BN-FTLXGAX  # Jason-Desktop-Linux
+				DAW6JNR-DHBHAVL-42UVJDB-SENEDDQ-OVLHNH3-XOVKDE4-JXVIQ23-GJBG6QZ  # Jason-Desktop-Windows
+				HIUQOJU-CNAGZCU-BHAFKP7-2T4WAO3-XUMWZKC-N2ZXQWD-XSGWNZH-WRGEWAP  # Jason-Laptop-Linux
+				QZBHFNE-XJWGGY4-6JXYMD3-D3HVGR2-C64BVH2-6M644XU-RSVRGAS-QZ752Q7  # Server
+			)
+			readonly already_added_devices="$("${syncthing_config[@]}" devices list)"
+			for device_id in "${device_ids[@]}"
+			do
+				if ! echo "$already_added_devices" | grep -Fe "$device_id" > /dev/null
+				then
+					if ! "${syncthing_config[@]}" devices add --device-id "$device_id"
+					then
+						echo_err "Failed to add Syncthing device: $device_id."
+					fi
+				fi
+				for ((i=0; i < "${#folder_ids[@]}"; i++))
+				do
+					folder_id="${folder_ids[$i]}"
+					already_added_devices_for_folder="$("${syncthing_config[@]}" folders "$folder_id" devices list)"
+					if ! echo "$already_added_devices_for_folder" | grep -Fe "$device_id" > /dev/null
+					then
+						if ! "${syncthing_config[@]}" folders "$folder_id" devices add --device-id "$device_id"
+						then
+							echo_err "Failed to share a folder ($folder_id) with a device ($device_id)."
+						fi
+					fi
+				done
+			done
+		else
+			echo_err "The folder_ids, folder_labels and folder_paths array weren’t all the same length. This should never happen."
+			disable_syncthing
+		fi
+	else
+		echo_err "syncthing@jayman sucessfully started, but the HTTP API never became available."
+		disable_syncthing
+	fi
+else
+	echo_err "Failed to enable syncthing@jayman."
 fi
 
 pkcon refresh --noninteractive
