@@ -62,6 +62,7 @@ fi
 potentially_install \
 	@"Server with GUI" \
 	git \
+	keepassxc \
 	PackageKit \
 	python \
 	syncthing \
