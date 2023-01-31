@@ -60,9 +60,9 @@ then
 	"${dnf_install[@]}" 'https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm'
 fi
 potentially_install \
+	@"Server with GUI" \
 	git \
 	PackageKit \
-	@"Server with GUI" \
 	python \
 	syncthing \
 	virt-manager
