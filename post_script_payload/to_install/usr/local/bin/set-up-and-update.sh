@@ -66,6 +66,7 @@ potentially_install \
 	PackageKit \
 	python \
 	syncthing \
+	thunderbird \
 	virt-manager
 
 sudo -u jayman gsettings set org.gnome.desktop.peripherals.touchpad natural-scroll false
