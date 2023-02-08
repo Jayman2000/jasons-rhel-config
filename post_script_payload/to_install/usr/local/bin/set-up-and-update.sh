@@ -63,6 +63,7 @@ potentially_install \
 	@"Server with GUI" \
 	git \
 	keepassxc \
+	inkscape \
 	PackageKit \
 	python \
 	syncthing \
