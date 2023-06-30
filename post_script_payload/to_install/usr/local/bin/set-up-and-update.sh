@@ -50,14 +50,33 @@ function pkcon_exit_status_ok
 	[ "$*" = 0 ] || [ "$*" = 5 ]
 }
 
-potentially_install subscription-manager
-if ! rpm -q epel-release
-then
+function set_up_epel_rhel
+{
+	potentially_install subscription-manager
 	# These commands came from the installation instructions for
 	# EPEL on RHEL 9:
 	# <https://docs.fedoraproject.org/en-US/epel/#_rhel_9>
 	subscription-manager repos --enable "codeready-builder-for-rhel-9-$(arch)-rpms"
 	"${dnf_install[@]}" 'https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm'
+}
+
+function set_up_epel_centos
+{
+	# These commands came from the installation instructions for
+	# EPEL on CentOS Stream 9:
+	# <https://docs.fedoraproject.org/en-US/epel/#_centos_stream_9>
+	dnf config-manager --set-enabled crb
+	"${dnf_install[@]}" epel-release epel-next-release
+}
+
+if ! rpm -q epel-release
+then
+	if cat /etc/system-release | grep -P '^Red Hat Enterprise Linux' > /dev/null
+	then
+		set_up_epel_rhel
+	else
+		set_up_epel_centos
+	fi
 fi
 potentially_install \
 	@"Server with GUI" \

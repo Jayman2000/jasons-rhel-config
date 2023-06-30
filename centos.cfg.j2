@@ -1,0 +1,5 @@
+{% extends "base.cfg.j2" %}
+
+{% block installation_source %}
+url --metalink=https://mirrors.centos.org/metalink?repo=centos-baseos-$releasever-stream&arch=$basearch&protocol=https
+{% endblock %}

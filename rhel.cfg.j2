@@ -1,0 +1,13 @@
+{% extends "base.cfg.j2" %}
+
+{% block installation_source %}
+rhsm --organization={{
+	jasons_kickstart_compiler.get_field("Organization id")
+}} --activation-key="{{
+	jasons_kickstart_compiler.get_field(
+		"Activation key",
+		is_password=True,
+		encrypt_password=False
+	)
+}}"
+{% endblock %}

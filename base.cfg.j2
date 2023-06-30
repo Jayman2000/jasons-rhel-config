@@ -4,15 +4,8 @@
 # is required so that I can eliminate it.
 cmdline
 
-rhsm --organization={{
-	jasons_kickstart_compiler.get_field("Organization id")
-}} --activation-key="{{
-	jasons_kickstart_compiler.get_field(
-		"Activation key",
-		is_password=True,
-		encrypt_password=False
-	)
-}}"
+{% block installation_source %}
+{% endblock %}
 
 ignoredisk --only-use={{
 	jasons_kickstart_compiler.get_field("disk path")
