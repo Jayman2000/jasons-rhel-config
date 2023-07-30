@@ -171,7 +171,7 @@ then
 			readonly hostname="$(hostname)"
 			if [ "$hostname" != Jason-Lemur-Pro ]
 			then
-				device_ids+=( 3PGXPGR-OWRBYZG-JQEQH73-XE7LIUP-F6OEYWJ-IC3DLCW-WHNAU3R-G2P6SAM )  # Jason-Lemur-Pro
+				device_ids+=( HDJCH46-RZMHE3K-T6S3G6N-662CFFW-CIAVKTI-BN6B32M-LFQCQKX-GG575AV )  # Jason-Lemur-Pro
 			fi
 			if [ "$hostname" != Jason-Lemur-Pro-VM-Test ]
 			then
