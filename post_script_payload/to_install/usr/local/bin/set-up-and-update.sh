@@ -9,6 +9,8 @@ then
 	rm /etc/systemd/default.target
 fi
 
+readonly hostname="$(hostname)"
+
 function echo_err
 {
 	echo "$@" 1>&2
@@ -67,6 +69,36 @@ function set_up_epel_centos
 	# <https://docs.fedoraproject.org/en-US/epel/#_centos_stream_9>
 	dnf config-manager --set-enabled crb
 	"${dnf_install[@]}" epel-release epel-next-release
+}
+
+function test_system
+{
+	echo "$hostname" | grep -i test > /dev/null
+	return "$?"
+}
+
+function should_add_syncthing_device
+{
+	if [ ! -v already_added_devices ]
+	then
+		echo_err \
+			"ERROR: should_add_syncthing_device() was" \
+			"called before already_added_devices was set." \
+			"This should never happen."
+	fi
+	if [ "$#" -ne 2 ]
+	then
+		echo_err \
+			"ERROR: should_add_syncthing_devices() was" \
+			"called with $# arguments. It should only" \
+			"ever be called with 2 arguments."
+	fi
+	local device_id="$1"
+	local device_hostname="$2"
+
+	( ! echo "$already_added_devices" | grep -Fe "$device_id" > /dev/null ) \
+		&& [ "$hostname" != "$device_hostname" ]
+	return "$?"
 }
 
 if ! rpm -q epel-release
@@ -134,7 +166,7 @@ then
 		folder_paths=( .save )
 		# These two folders are pretty big, so we shouldn’t
 		# share them with the VM.
-		if ! hostname | grep Jason-Lemur-Pro-VM-Test > /dev/null
+		if ! test_system
 		then
 			folder_ids[1]=eheef-uq5hv
 			folder_labels[1]="Game Data"
@@ -160,27 +192,41 @@ then
 				fi
 			done
 
-			readonly test_vm_id=2MOLIOF-XEWO4JR-PUE4NUS-I3YSRGM-X374W7F-6BXK4S6-UGXVIL6-TYWHWAC  # Jason-Lemur-Pro-VM-Test
-			device_ids=(
-				FKL7ZTK-VZXXCEB-62XKBQ3-O7LCUAJ-AW2VOXK-UJXHTWC-NNNOUJM-M2Q4UAG  # Graphical-Test-VM
-				7A735CO-FSRRF2I-FN5WRGV-OHGRWHR-TF4Z47H-OJBHRBA-G7CP7BN-FTLXGAX  # Jason-Desktop-Linux
-				DAW6JNR-DHBHAVL-42UVJDB-SENEDDQ-OVLHNH3-XOVKDE4-JXVIQ23-GJBG6QZ  # Jason-Desktop-Windows
-				HIUQOJU-CNAGZCU-BHAFKP7-2T4WAO3-XUMWZKC-N2ZXQWD-XSGWNZH-WRGEWAP  # Jason-Laptop-Linux
-				QZBHFNE-XJWGGY4-6JXYMD3-D3HVGR2-C64BVH2-6M644XU-RSVRGAS-QZ752Q7  # Server
-			)
-			readonly hostname="$(hostname)"
-			if [ "$hostname" != Jason-Lemur-Pro ]
-			then
-				device_ids+=( HDJCH46-RZMHE3K-T6S3G6N-662CFFW-CIAVKTI-BN6B32M-LFQCQKX-GG575AV )  # Jason-Lemur-Pro
-			fi
-			if [ "$hostname" != Jason-Lemur-Pro-VM-Test ]
-			then
-				device_ids+=( "$test_vm_id" )
-			fi
+
+			device_ids=( )
+			device_hostnames=( )
+
+			device_ids+=( FKL7ZTK-VZXXCEB-62XKBQ3-O7LCUAJ-AW2VOXK-UJXHTWC-NNNOUJM-M2Q4UAG )
+			device_hostnames+=( Graphical-Test-VM )
+
+			device_ids+=( 7A735CO-FSRRF2I-FN5WRGV-OHGRWHR-TF4Z47H-OJBHRBA-G7CP7BN-FTLXGAX )
+			device_hostnames+=( Jason-Desktop-Linux )
+
+			device_ids+=( DAW6JNR-DHBHAVL-42UVJDB-SENEDDQ-OVLHNH3-XOVKDE4-JXVIQ23-GJBG6QZ )
+			device_hostnames+=( Jason-Desktop-Windows )
+
+			device_ids+=( HIUQOJU-CNAGZCU-BHAFKP7-2T4WAO3-XUMWZKC-N2ZXQWD-XSGWNZH-WRGEWAP )
+			device_hostnames+=( Jason-Laptop-Linux )
+
+			device_ids+=( QZBHFNE-XJWGGY4-6JXYMD3-D3HVGR2-C64BVH2-6M644XU-RSVRGAS-QZ752Q7 )
+			device_hostnames+=( Server )
+
+			device_ids+=( HDJCH46-RZMHE3K-T6S3G6N-662CFFW-CIAVKTI-BN6B32M-LFQCQKX-GG575AV )
+			device_hostnames+=( Jason-Lemur-Pro )
+
+			device_ids+=( 2MOLIOF-XEWO4JR-PUE4NUS-I3YSRGM-X374W7F-6BXK4S6-UGXVIL6-TYWHWAC )
+			device_hostnames+=( Jason-Lemur-Pro-VM-Test )
+
+			readonly device_ids device_hostnames
+
+
 			readonly already_added_devices="$("${syncthing_config[@]}" devices list)"
-			for device_id in "${device_ids[@]}"
+			for (( device_index=0; device_index < "${#device_ids[@]}"; device_index++ ))
 			do
-				if ! echo "$already_added_devices" | grep -Fe "$device_id" > /dev/null
+				device_id="${device_ids[$device_index]}"
+				device_hostname="${device_hostnames[$device_index]}"
+
+				if should_add_syncthing_device "$device_id" "$device_hostname"
 				then
 					if ! "${syncthing_config[@]}" devices add --device-id "$device_id"
 					then
