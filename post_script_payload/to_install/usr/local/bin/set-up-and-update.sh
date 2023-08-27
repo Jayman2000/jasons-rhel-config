@@ -215,7 +215,7 @@ then
 			device_hostnames+=( Jason-Lemur-Pro )
 
 			device_ids+=( 2MOLIOF-XEWO4JR-PUE4NUS-I3YSRGM-X374W7F-6BXK4S6-UGXVIL6-TYWHWAC )
-			device_hostnames+=( Jason-Lemur-Pro-VM-Test )
+			device_hostnames+=( Jason-Lemur-Pro-VM-Test-CentOS )
 
 			readonly device_ids device_hostnames
 
