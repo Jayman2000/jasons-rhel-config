@@ -196,7 +196,7 @@ then
 			device_ids=( )
 			device_hostnames=( )
 
-			device_ids+=( 7D3L763-ZUJTBTS-WGFVKGU-C2PM4CB-ASU6WK3-WKUWGYL-Y6XM6FN-FNA7UQY )
+			device_ids+=( ZMIDUU3-NMXTXZZ-Q6XYCCN-G3QHDVO-3JBQZ6R-KK62LXI-5XFROZ3-SKV45A7 )
 			device_hostnames+=( Graphical-Test-VM )
 
 			device_ids+=( 7A735CO-FSRRF2I-FN5WRGV-OHGRWHR-TF4Z47H-OJBHRBA-G7CP7BN-FTLXGAX )
