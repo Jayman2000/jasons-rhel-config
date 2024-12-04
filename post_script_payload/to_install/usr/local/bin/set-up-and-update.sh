@@ -211,10 +211,10 @@ then
 			device_ids+=( QZBHFNE-XJWGGY4-6JXYMD3-D3HVGR2-C64BVH2-6M644XU-RSVRGAS-QZ752Q7 )
 			device_hostnames+=( Server )
 
-			device_ids+=( HDJCH46-RZMHE3K-T6S3G6N-662CFFW-CIAVKTI-BN6B32M-LFQCQKX-GG575AV )
+			device_ids+=( J5UN6OL-YTQM5PO-ARP3I77-EZIHIXS-Y4QNWDS-OSUTZLP-TES6TDP-TCOAKAV )
 			device_hostnames+=( Jason-Lemur-Pro )
 
-			device_ids+=( 2MOLIOF-XEWO4JR-PUE4NUS-I3YSRGM-X374W7F-6BXK4S6-UGXVIL6-TYWHWAC )
+			device_ids+=( DACPZKJ-GMT2UG7-WDYKPBX-KOK3LEF-BLTKCEM-FJGP2L6-7GXB24S-2GPLQQC )
 			device_hostnames+=( Jason-Lemur-Pro-VM-Test-CentOS )
 
 			readonly device_ids device_hostnames
